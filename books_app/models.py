@@ -24,6 +24,7 @@ class Book(db.Model):
 
     # The genres, e.g. fiction, sci-fi, fantasy
     genres = db.relationship('Genre', secondary='book_genre', back_populates='books')
+    users = db.relationship('User', secondary='favorite_book', back_populates='favorite_books')
 
     def __str__(self):
         return f'<Book: {self.title}>'
@@ -55,10 +56,16 @@ class Genre(db.Model):
     def __repr__(self):
         return f'<Genre: {self.name}>'
 
+book_genre_table = db.Table('book_genre',
+    db.Column('book_id', db.Integer, db.ForeignKey('book.id')),
+    db.Column('genre_id', db.Integer, db.ForeignKey('genre.id'))
+)
+
 class User(db.Model):
     """User model."""
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
+    favorite_books = db.relationship('Book', secondary='favorite_book', back_populates='users')
 
     def __str__(self):
         return f'<User: {self.username}>'
@@ -66,10 +73,6 @@ class User(db.Model):
     def __repr__(self):
         return f'<User: {self.favorite_books}>'
 
-book_genre_table = db.Table('book_genre',
-    db.Column('book_id', db.Integer, db.ForeignKey('book.id')),
-    db.Column('genre_id', db.Integer, db.ForeignKey('genre.id'))
-)
 
 favorite_book_table = db.Table('favorite_book',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
